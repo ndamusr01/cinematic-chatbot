@@ -19,10 +19,10 @@ def generate():
         data = request.json
         user_description = data.get("description")
 
-        # Corrected OpenAI API call for new versions
+        # Corrected OpenAI API call
         client = openai.OpenAI(api_key=OPENAI_API_KEY)
         response = client.chat.completions.create(
-            model="gpt-4",
+            model="gpt-3.5-turbo",  # ✅ Changed to GPT-3.5-turbo
             messages=[{"role": "user", "content": f"I'm imagining this scene: {user_description}"}]
         )
 
