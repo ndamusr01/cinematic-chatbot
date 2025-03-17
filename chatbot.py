@@ -1,12 +1,12 @@
 from flask import Flask, request, jsonify
 import openai
 import os
-from flask_cors import CORS  # Import CORS to allow cross-origin requests
+from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS to fix cross-origin issues
+CORS(app)  # Allows cross-origin requests
 
-# Get API key from environment variables
+# Load OpenAI API Key
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 @app.route("/")
@@ -17,15 +17,16 @@ def home():
 def generate():
     try:
         data = request.json
-        user_description = data.get("description", "")
+        user_description = data.get("description")
 
-        response = openai.ChatCompletion.create(
+        # Corrected OpenAI API call for new versions
+        client = openai.OpenAI(api_key=OPENAI_API_KEY)
+        response = client.chat.completions.create(
             model="gpt-4",
-            messages=[{"role": "user", "content": f"I'm imagining this scene: {user_description}"}],
-            api_key=OPENAI_API_KEY  # This line is incorrect in latest OpenAI API versions
+            messages=[{"role": "user", "content": f"I'm imagining this scene: {user_description}"}]
         )
 
-        return jsonify({"prompt": response["choices"][0]["message"]["content"]})
+        return jsonify({"prompt": response.choices[0].message.content})
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
