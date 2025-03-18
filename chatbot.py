@@ -38,5 +38,3 @@ def generate():
     
     return jsonify({"prompt": output_prompt})  # JSON response
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
