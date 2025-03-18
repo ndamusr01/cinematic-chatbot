@@ -33,8 +33,19 @@ def generate():
        response = openai.ChatCompletion.create(
     model="gpt-4",
     messages=[
-        {"role": "system", "content": "You are a Cinematic Prompt Generator. Your task is to craft hyper-detailed, cinematic AI prompts for text-to-image generation, using highly specific descriptions, lighting details, composition, mood, and camera settings. Do not write a story. Format the response in structured prompt style."},
-        {"role": "user", "content": f"Generate a detailed, cinematic AI image prompt for: {user_description}"}
+        {
+            "role": "system",
+            "content": (
+                "You are a Cinematic AI Prompt Generator. Your job is to generate hyper-detailed prompts for AI image generation. "
+                "Format the output strictly in a structured prompt style. Do NOT write a story. "
+                "Include key details such as subject, lighting, camera settings, composition, depth of field, color grading, and mood. "
+                "Ensure the response is concise, usable, and formatted as an AI prompt."
+            ),
+        },
+        {
+            "role": "user",
+            "content": f"Generate a cinematic AI image prompt for: {user_description}",
+        },
     ],
     api_key=OPENAI_API_KEY
 )
