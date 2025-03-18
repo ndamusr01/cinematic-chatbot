@@ -1,8 +1,11 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS  # Import CORS
 import openai
 import os
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS for all domains (for testing)
+# CORS(app, origins=["https://reikonomori.com"])  # Use this in production to allow only your domain
 
 # Load API Key from Environment Variable
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -18,14 +21,7 @@ def generate():
     length = data.get("length", "default")  # Allow users to specify 'short', 'medium', 'long'
 
     # Define different prompt lengths
-    if length == "short":
-        max_tokens = 100
-    elif length == "medium":
-        max_tokens = 250
-    elif length == "long":
-        max_tokens = 400
-    else:
-        max_tokens = 300  # Default length
+    max_tokens = {"short": 100, "medium": 250, "long": 400}.get(length, 300)
 
     response = openai.ChatCompletion.create(
         model="gpt-4",
@@ -35,6 +31,7 @@ def generate():
     )
 
     output_prompt = response["choices"][0]["message"]["content"]
-    
     return jsonify({"prompt": output_prompt})  # JSON response
 
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
