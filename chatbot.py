@@ -30,14 +30,15 @@ def generate():
 
     # OpenAI API Call
     try:
-        response = openai.ChatCompletion.create(
-            model="gpt-4",
-            messages=[
-                {"role": "system", "content": "You are an expert in crafting cinematic AI prompts for generating hyper-realistic visuals."},
-                {"role": "user", "content": f"I'm imagining this scene: {user_description}. {length_modifier}"}
-            ],
-            api_key=OPENAI_API_KEY
-        )
+       response = openai.ChatCompletion.create(
+    model="gpt-4",
+    messages=[
+        {"role": "system", "content": "You are a Cinematic Prompt Generator. Your task is to craft hyper-detailed, cinematic AI prompts for text-to-image generation, using highly specific descriptions, lighting details, composition, mood, and camera settings. Do not write a story. Format the response in structured prompt style."},
+        {"role": "user", "content": f"Generate a detailed, cinematic AI image prompt for: {user_description}"}
+    ],
+    api_key=OPENAI_API_KEY
+)
+
         output_prompt = response["choices"][0]["message"]["content"]
 
         return jsonify({"prompt": output_prompt})
