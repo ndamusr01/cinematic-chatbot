@@ -1,22 +1,13 @@
 from flask import Flask, request, jsonify
-from flask_cors import CORS  # Enable cross-origin requests
+from flask_cors import CORS
 import openai
 import os
 
 app = Flask(__name__)
-CORS(app)  # Allow CORS for all domains
+CORS(app)  # Enable CORS to allow requests from your frontend
 
-# OpenAI API Key
+# Load OpenAI API Key from environment variables
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-
-def determine_length(user_input):
-    """Determines the length of the response based on user input."""
-    if "shorter" in user_input.lower():
-        return 200  # Shorter response (~200 characters)
-    elif "longer" in user_input.lower():
-        return 800  # Longer response (~800 characters)
-    else:
-        return 400  # Default response length (~400 characters)
 
 @app.route("/", methods=["GET"])
 def home():
@@ -25,19 +16,34 @@ def home():
 @app.route("/generate", methods=["POST"])
 def generate():
     data = request.json
-    user_description = data.get("description", "")
-    length = determine_length(user_description)
-    
-    response = openai.ChatCompletion.create(
-        model="gpt-4",
-        messages=[
-            {"role": "system", "content": "You are an expert in generating hyper-detailed cinematic AI prompts for text-to-image generation."},
-            {"role": "user", "content": f"Generate a highly detailed cinematic prompt based on this scene: {user_description}. Limit the response to approximately {length} characters."}
-        ],
-        api_key=OPENAI_API_KEY
-    )
-    
-    return jsonify({"prompt": response["choices"][0]["message"]["content"]})
+    user_description = data.get("description", "").strip().lower()
+
+    # Determine prompt length based on keywords
+    if "shorter" in user_description:
+        length_modifier = "Make it a concise but detailed description, around 250 characters."
+        user_description = user_description.replace("shorter", "").strip()
+    elif "longer" in user_description:
+        length_modifier = "Expand it into an in-depth cinematic scene description, around 600 characters."
+        user_description = user_description.replace("longer", "").strip()
+    else:
+        length_modifier = "Generate a standard-length detailed description."
+
+    # OpenAI API Call
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "You are an expert in crafting cinematic AI prompts for generating hyper-realistic visuals."},
+                {"role": "user", "content": f"I'm imagining this scene: {user_description}. {length_modifier}"}
+            ],
+            api_key=OPENAI_API_KEY
+        )
+        output_prompt = response["choices"][0]["message"]["content"]
+
+        return jsonify({"prompt": output_prompt})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
