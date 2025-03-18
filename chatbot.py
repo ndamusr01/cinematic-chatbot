@@ -50,9 +50,16 @@ def generate():
     api_key=OPENAI_API_KEY
 )
 
-        output_prompt = response["choices"][0]["message"]["content"]
+    response = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages=[{"role": "user", "content": user_description}],
+        api_key=OPENAI_API_KEY
+    )  # Ensure this closes properly
 
-        return jsonify({"prompt": output_prompt})
+    output_prompt = response["choices"][0]["message"]["content"]  # This should be aligned correctly
+
+    return jsonify({"prompt": output_prompt})  # Make sure this aligns with the function block
+
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
